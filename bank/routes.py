@@ -660,4 +660,4 @@ def write_statement_into_excel():
     writer.close()
     output.seek(0)
 
-    return send_file(output, attachment_filename="account_statement.xlsx", as_attachment=True)
+    return send_file(output, download_name="account_statement.xlsx", as_attachment=True)

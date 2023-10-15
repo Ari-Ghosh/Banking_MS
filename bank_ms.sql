@@ -1,13 +1,14 @@
 -- phpMyAdmin SQL Dump
--- version 4.6.4
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 19, 2020 at 09:28 AM
--- Server version: 5.7.14
--- PHP Version: 5.6.25
+-- Generation Time: Oct 15, 2023 at 10:59 PM
+-- Server version: 10.4.28-MariaDB
+-- PHP Version: 8.2.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
 SET time_zone = "+00:00";
 
 
@@ -17,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `banking-system`
+-- Database: `bank_ms`
 --
 
 -- --------------------------------------------------------
@@ -32,9 +33,18 @@ CREATE TABLE `accounts` (
   `account_type` int(11) DEFAULT NULL,
   `amount` int(11) DEFAULT NULL,
   `is_locked` tinyint(1) DEFAULT NULL,
-  `created_at` timestamp NOT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Dumping data for table `accounts`
+--
+
+INSERT INTO `accounts` (`id`, `customer_id`, `account_type`, `amount`, `is_locked`, `created_at`, `updated_at`) VALUES
+(173206480, 367989540, 2, 32000, 0, '2023-10-15 18:00:34', '2023-10-15 18:00:34'),
+(173206481, 367989541, 2, 31000, 0, '2023-10-15 20:21:45', '2023-10-15 20:21:45'),
+(173206482, 367989542, 2, 37000, 0, '2023-10-15 20:21:45', '2023-10-15 20:21:45');
 
 -- --------------------------------------------------------
 
@@ -49,8 +59,17 @@ CREATE TABLE `account_status` (
   `account_type` int(11) DEFAULT NULL,
   `status` tinyint(1) DEFAULT NULL,
   `message` varchar(255) DEFAULT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Dumping data for table `account_status`
+--
+
+INSERT INTO `account_status` (`id`, `account_id`, `customer_id`, `account_type`, `status`, `message`, `updated_at`) VALUES
+(12, 173206480, 367989540, 2, 1, 'Account creation complete', '2023-10-15 14:26:09'),
+(13, 173206481, 367989541, 2, 1, 'Account creation complete', '2023-10-15 17:59:55'),
+(14, 173206482, 367989542, 2, 1, 'Account creation complete', '2023-10-15 20:20:47');
 
 -- --------------------------------------------------------
 
@@ -62,7 +81,7 @@ CREATE TABLE `cities` (
   `id` int(11) NOT NULL,
   `name` varchar(30) NOT NULL,
   `state_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `cities`
@@ -5824,7 +5843,7 @@ CREATE TABLE `countries` (
   `sortname` varchar(3) NOT NULL,
   `name` varchar(150) NOT NULL,
   `phonecode` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Dumping data for table `countries`
@@ -5847,9 +5866,18 @@ CREATE TABLE `customers` (
   `address` varchar(255) DEFAULT NULL,
   `state` int(11) DEFAULT NULL,
   `city` int(11) DEFAULT NULL,
-  `created_at` timestamp NOT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Dumping data for table `customers`
+--
+
+INSERT INTO `customers` (`id`, `ssn_id`, `name`, `age`, `address`, `state`, `city`, `created_at`, `updated_at`) VALUES
+(367989540, 987654321, 'Arijit Ghosh', 20, 'DL-42, DL Block, Sector-2, Salt Lake', 41, 5583, '2023-10-15 14:25:55', '2023-10-15 14:25:55'),
+(367989541, 273495677, 'Arijit Ghosh', 20, 'Kolkata', 41, 5583, '2023-10-15 17:59:10', '2023-10-15 17:59:10'),
+(367989542, 234087824, 'Swapnodip Singha Roy', 20, 'Icchapur, Near Balaji Club', 41, 5373, '2023-10-15 20:20:16', '2023-10-15 20:20:16');
 
 -- --------------------------------------------------------
 
@@ -5863,8 +5891,18 @@ CREATE TABLE `customer_status` (
   `ssn_id` int(11) DEFAULT NULL,
   `status` tinyint(1) DEFAULT NULL,
   `message` varchar(255) DEFAULT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Dumping data for table `customer_status`
+--
+
+INSERT INTO `customer_status` (`id`, `customer_id`, `ssn_id`, `status`, `message`, `updated_at`) VALUES
+(9, 367989540, 987654321, 1, 'Customer created successfully', '2023-10-15 14:25:55'),
+(10, 367989541, 273495677, 1, 'Customer created successfully', '2023-10-15 17:59:10'),
+(11, 367989542, 234087824, 1, 'Customer created successfully', '2023-10-15 20:19:20'),
+(12, 367989542, 234087824, 1, 'Customer update complete', '2023-10-15 20:20:16');
 
 -- --------------------------------------------------------
 
@@ -5875,8 +5913,8 @@ CREATE TABLE `customer_status` (
 CREATE TABLE `states` (
   `id` int(11) NOT NULL,
   `name` varchar(30) NOT NULL,
-  `country_id` int(11) NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `country_id` int(11) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `states`
@@ -5937,8 +5975,21 @@ CREATE TABLE `transactions_control` (
   `account_id` int(11) NOT NULL,
   `description` varchar(100) DEFAULT NULL,
   `amount` int(11) DEFAULT NULL,
-  `created_at` timestamp NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Dumping data for table `transactions_control`
+--
+
+INSERT INTO `transactions_control` (`id`, `transaction_id`, `account_id`, `description`, `amount`, `created_at`) VALUES
+(16, '202310-1519-5609-a3f290e0-650d-492e-afe9-879d8328b205', 173206480, 'Deposit', 30000, '2023-10-15 14:26:09'),
+(17, '202310-1523-2955-79255f57-6b44-4633-876b-549dbb0f9edf', 173206481, 'Deposit', 30000, '2023-10-15 17:59:55'),
+(18, '202310-1523-3034-f197afd7-1051-4936-8ed4-74051d72c3bf', 173206481, 'Withdraw', 2000, '2023-10-15 18:00:34'),
+(19, '202310-1523-3034-19f6eacc-565c-4e49-9065-48ef35c66fe2', 173206480, 'Deposit', 2000, '2023-10-15 18:00:34'),
+(20, '202310-1601-5047-27e22e34-521c-4878-92e2-8f53b591b048', 173206482, 'Deposit', 40000, '2023-10-15 20:20:47'),
+(21, '202310-1601-5145-812a938a-1df2-4774-98ce-7f72ec39b019', 173206482, 'Withdraw', 3000, '2023-10-15 20:21:45'),
+(22, '202310-1601-5145-76c6376e-3d12-40ef-a1c5-b5ed4963d4f7', 173206481, 'Deposit', 3000, '2023-10-15 20:21:45');
 
 -- --------------------------------------------------------
 
@@ -5951,9 +6002,18 @@ CREATE TABLE `user_registrations` (
   `username` varchar(20) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
   `status` tinyint(1) DEFAULT NULL,
-  `created_at` timestamp NOT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Dumping data for table `user_registrations`
+--
+
+INSERT INTO `user_registrations` (`id`, `username`, `password`, `status`, `created_at`, `updated_at`) VALUES
+(543981750, 'admin', '75f4c92c1f2ab57cece11655b783b054', 1, '2023-10-15 14:25:32', '2023-10-15 14:25:32'),
+(543981751, 'arijit', '8c66cdf537da0a45535ec02624294f7a', 1, '2023-10-15 17:58:12', '2023-10-15 17:58:12'),
+(543981752, 'swapnodip', '97b22b08639bcc11e5807af24e5d749f', 1, '2023-10-15 20:17:58', '2023-10-15 20:17:58');
 
 --
 -- Indexes for dumped tables
@@ -6027,47 +6087,57 @@ ALTER TABLE `user_registrations`
 -- AUTO_INCREMENT for table `accounts`
 --
 ALTER TABLE `accounts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=173206480;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=173206483;
+
 --
 -- AUTO_INCREMENT for table `account_status`
 --
 ALTER TABLE `account_status`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+
 --
 -- AUTO_INCREMENT for table `cities`
 --
 ALTER TABLE `cities`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5742;
+
 --
 -- AUTO_INCREMENT for table `countries`
 --
 ALTER TABLE `countries`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
 --
 -- AUTO_INCREMENT for table `customers`
 --
 ALTER TABLE `customers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=367989540;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=367989543;
+
 --
 -- AUTO_INCREMENT for table `customer_status`
 --
 ALTER TABLE `customer_status`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+
 --
 -- AUTO_INCREMENT for table `states`
 --
 ALTER TABLE `states`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
+
 --
 -- AUTO_INCREMENT for table `transactions_control`
 --
 ALTER TABLE `transactions_control`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+
 --
 -- AUTO_INCREMENT for table `user_registrations`
 --
 ALTER TABLE `user_registrations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=543981750;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=543981753;
+COMMIT;
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
