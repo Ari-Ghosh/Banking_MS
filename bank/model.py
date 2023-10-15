@@ -1,7 +1,7 @@
 from bank import db
 from datetime import datetime
 from sqlalchemy.dialects.mysql import TIMESTAMP
-from sqlalchemy import func, text,DDL,event
+from sqlalchemy import text,DDL,event
 import hashlib
 from bank import app
 from uuid import uuid4
@@ -175,20 +175,7 @@ class UserRegistration(db.Model):
         db_password = password+salt
         hash = hashlib.md5(db_password.encode())
         hashing_password = hash.hexdigest()             
-        return hashing_password
-
-
-
-# event.listen(
-#             Customer.__table__,
-#             "after_create",
-#             DDL("ALTER TABLE `%(table)s` auto_increment = 900000000;")
-#         )     
-# event.listen(
-#             Account.__table__,
-#             "after_create",
-#             DDL("ALTER TABLE `%(table)s` auto_increment = 900000000;")
-#         )    
+        return hashing_password 
 
 def set_auto_increment(target, connection, **kw):
     DDL('ALTER TABLE `%(table)s` AUTO_INCREMENT = 300000000;')
