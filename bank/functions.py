@@ -1,148 +1,151 @@
 from datetime import datetime
-from bank import app,db
-from bank.model import *
+from bank import db
 from time import sleep
-from flask import flash,session
+from flask import flash, session
+from bank.model import Account, TransactionControl
 
 def get_formatted_date():
+    """
+    Get the current date and time in a formatted string.
+    """
     now = datetime.now()
     formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
     return formatted_date
 
 def account_type_list():
-    # hardcoded set Account type if any account need to add then add here
-    account_type = {
-        '1' : 'Current',
-        '2' : 'Saving'
+    """
+    Return a dictionary of account types.
+    """
+    return {
+        '1': 'Current',
+        '2': 'Saving'
     }
-    return account_type
 
-# universal function for added transaction into Transaction Control
-def add_transaction(transaction_type, amount,source_account_id,destination_account_id = None):
-    # 1 : withdraw
-    # 2 : deposit
-    # 3 : transfer - account_id manadatory        
+def add_transaction(transaction_type, amount, source_account_id, destination_account_id=None):
+    """
+    Add a transaction to the Transaction Control.
+
+    Args:
+        transaction_type (int): Type of transaction (1: Withdraw, 2: Deposit, 3: Transfer).
+        amount (int): The transaction amount.
+        source_account_id (int): The source account ID.
+        destination_account_id (int): The destination account ID for transfers.
+
+    Returns:
+        bool: True if the transaction was successful, False otherwise.
+    """
     if not transaction_type or (transaction_type == 3 and not destination_account_id):
         return False
-    # default status set as True
-    loop_status = True
-    transaction_success = False   
-          
-    while loop_status:
-        # account locked or not if account locked then wait for unlocked
-        if destination_account_id:
-            accounts_list = [int(source_account_id),int(destination_account_id)]            
-        else:
-            accounts_list = [int(source_account_id)]
-        # if status is true wait few milisecond and try again
-        status = check_locked(accounts_list)
-        
-        if status:            
-            sleep(0.5)
-        else:
-            loop_status = False            
-            locked_account(accounts_list)            
-            # Initiate Transaction
-            account_obj = Account.query.get(source_account_id)
-            account_amount = account_obj.amount                  
-            if transaction_type and transaction_type == 1:
-                # Withdraw Money                
-                account_amount = account_obj.amount
-                if account_amount < amount:                    
-                    flash('Withdraw not allowed, please choose smaller amount')
-                    transaction_success = False                    
-                    break
-                else:                    
-                    account_amount = account_amount-amount  
-                    account_obj.amount  = account_amount
-                    db.session.add(account_obj)
-                    db.session.commit()
-                    save_transaction_entry(source_account_id,"Withdraw",amount)
-                    transaction_success = True
-            elif transaction_type and transaction_type == 2:
-                # Deposit Money                
-                account_amount = account_obj.amount
-                account_amount = account_amount+amount  
-                account_obj.amount = account_amount
-                db.session.add(account_obj)
-                db.session.commit()
-                save_transaction_entry(source_account_id,"Deposit",amount)
-                transaction_success = True
-            elif transaction_type and transaction_type == 3:                
-                if account_amount < amount:
-                    flash('Withdraw not allowed, please choose smaller amount')
-                    transaction_success = False                    
-                    break
-                else:                    
-                    # Transfer Money                
-                    # First Debit account then credit amount
-                    account_amount = account_obj.amount
-                    account_amount = account_amount-amount 
-                    destination_account_obj = Account.query.get(destination_account_id) 
-                    destination_amount = destination_account_obj.amount
-                    destination_amount = destination_amount + amount
-                    # set new account
-                    account_obj.amount = account_amount
-                    destination_account_obj.amount = destination_amount
-                    db.session.add(account_obj)
-                    db.session.add(destination_account_obj)
-                    db.session.commit()
-                    save_transaction_entry(source_account_id,"Withdraw",amount)
-                    save_transaction_entry(destination_account_id,"Deposit",amount)
-                    transaction_success = True
-        # unlocked account
-    unlocked_account(accounts_list)
-    if transaction_success:
-        flash("Transaction completed successfully")
-    return transaction_success
 
-def locked_account(accounts = []):
-    # Locked Account given in this parameter
+    # Wait if accounts are locked
+    while check_locked([source_account_id, destination_account_id]):
+
+        sleep(0.5)
+
+    locked_account([source_account_id, destination_account_id])
+
+    account_obj = Account.query.get(source_account_id)
+
+    if transaction_type == 1:
+        # Withdraw Money
+        if account_obj.amount < amount:
+            flash('Withdraw not allowed, please choose a smaller amount')
+            return False
+        account_obj.amount -= amount
+        save_transaction_entry(source_account_id, "Withdraw", amount)
+    elif transaction_type == 2:
+        # Deposit Money
+        account_obj.amount += amount
+        save_transaction_entry(source_account_id, "Deposit", amount)
+    elif transaction_type == 3:
+        if account_obj.amount < amount:
+            flash('Withdraw not allowed, please choose a smaller amount')
+            return False
+
+        destination_account_obj = Account.query.get(destination_account_id)
+        account_obj.amount -= amount
+        destination_account_obj.amount += amount
+
+        save_transaction_entry(source_account_id, "Withdraw", amount)
+        save_transaction_entry(destination_account_id, "Deposit", amount)
+
+    db.session.add(account_obj)
+    db.session.commit()
+
+    unlocked_account([source_account_id, destination_account_id])
+    flash("Transaction completed successfully")
+    return True
+
+def locked_account(accounts=[]):
+    """
+    Lock the specified accounts.
+
+    Args:
+        accounts (list): List of account IDs to lock.
+    """
     for account in accounts:
         account_obj = Account.query.get(account)
         account_obj.is_locked = True
         db.session.add(account_obj)
         db.session.commit()
-    return True
 
-def unlocked_account(accounts = []):
-    # UnLocked Account given in this parameter
+def unlocked_account(accounts=[]):
+    """
+    Unlock the specified accounts.
+
+    Args:
+        accounts (list): List of account IDs to unlock.
+    """
     for account in accounts:
         account_obj = Account.query.get(account)
         account_obj.is_locked = False
         db.session.add(account_obj)
         db.session.commit()
-    return True
 
-# if pass account any one is set as true then its return false
-def check_locked(accounts = []):
-    # default account locked status set as false
-    status = False
-    for account in accounts:
-        account_obj = Account.query.get(account)
-        if account_obj.is_locked:
-            status = True
-    return status
+def check_locked(accounts=[]):
+    """
+    Check if any of the specified accounts are locked.
 
-def save_transaction_entry(account_id,description,amount):        
-    transaction_obj = TransactionControl(account_id,description,amount,get_formatted_date())
+    Args:
+        accounts (list): List of account IDs to check.
+
+    Returns:
+        bool: True if any account is locked, False otherwise.
+    """
+    return any(Account.query.get(account).is_locked for account in accounts)
+
+def save_transaction_entry(account_id, description, amount):
+    """
+    Save a transaction entry in the Transaction Control.
+
+    Args:
+        account_id (int): The account ID.
+        description (str): Description of the transaction.
+        amount (int): The transaction amount.
+    """
+    transaction_obj = TransactionControl(account_id, description, amount, get_formatted_date())
     db.session.add(transaction_obj)
     db.session.commit()
 
-
-# Flash message for ajax request
 def flash_set(message):
-    if session['flash']:
-        message = session['flash']
-        message = list(message)
-        message.append(message)
+    """
+    Set a flash message in the session.
+
+    Args:
+        message (str): The flash message to set.
+    """
+    if 'flash' in session:
+        session['flash'].append(message)
     else:
-        message = list()
-        message.append(message)
-        session['flash'] = message
+        session['flash'] = [message]
 
 def flash_retrieve():
-    if session['flash']:
-        messages = session['flash']
-        for message in messages:
-            flash(message)
+    """
+    Retrieve and clear flash messages from the session.
+
+    Returns:
+        list: List of flash messages.
+    """
+    messages = session.pop('flash', [])
+    for message in messages:
+        flash(message)
