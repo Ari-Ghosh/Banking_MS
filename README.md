@@ -21,4 +21,4 @@ As financial services continue to embrace the digital era, the AS Bank Banking M
 ## Link for documents
 - Link for project demo: https://drive.google.com/file/d/1466DcAsQEKLAHZyJrj8750vmg14J6cRA/view?usp=sharing
 - Link for SRS Document (Project Report): https://drive.google.com/file/d/1ycyB3P9QdFGajVI6hXRn73qnXVXlIYhU/view?usp=sharing
-- Link for PPT: https://docs.google.com/presentation/d/10mrLTtUhk-6FiVj6CJKhsh-7fEMUmTwC/edit?usp=sharing&ouid=107625130012950009259&rtpof=true&sd=true
+- Link for PPT: https://drive.google.com/file/d/117_egVt0Ni6a6jb5aWus0hpGlu7oCXuJ/view?usp=sharing
